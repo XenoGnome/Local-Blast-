@@ -1,0 +1,76 @@
+#Ensure BLAST+ is installed on your Linux system. You can install it using a package manager or download it directly from NCBI.
+
+#Using a Package Manager (e.g., Ubuntu/Debian)
+
+sudo apt update
+sudo apt install ncbi-blast+
+
+#Step 2: Prepare Your Files
+ 	Protein sequence database file (e.g., proteins.fasta):
+	This file contains the protein sequences you want to search against.
+ 	Query sequence file (e.g., query.fasta):
+	his file contains the protein sequences you want to search for.
+	Ensure both files are in FASTA format.
+
+makeblastdb -in crocus_sativus.pep -dbtype prot -out proteins_db 
+
+
+Explanation:
+-in: The input file (proteins.fasta).
+-dbtype: Specify prot for protein sequences.
+-out: Prefix for the BLAST database files (e.g., proteins_db).
+
+Or:
+-in: Input protein file (proteins.pep).
+-dbtype: Specify prot for protein sequences.
+-out: Prefix for the BLAST database files (proteins_db).
+This will generate the database files (proteins_db.phr, proteins_db.pin, proteins_db.psq).
+
+Step 3: Perform the BLAST Search
+Run blastp to search your query protein (query.fasta) against the protein database (proteins_db).
+
+blastp -query query.fasta -db proteins_db -out results.out -outfmt 6 -evalue 1e-5 -num_threads 4
+
+Explanation:
+-query: Input query file (query.fasta).
+-db: Protein BLAST database (proteins_db).
+-out: Output file for the results (results.out).
+-outfmt 6: Tabular format for easier processing.
+-evalue: Set an E-value threshold (e.g., 1e-5).
+-num_threads: Number of CPU threads to use for faster processing.
+
+
+Step 4: Analyze the Results
+The -outfmt 6 output is tab-delimited with the following columns:
+
+Query ID
+Subject ID
+% Identity
+Alignment length
+Mismatches
+Gap opens
+Query start
+Query end
+Subject start
+Subject end
+E-value
+Bit score
+
+less results.out
+
+Filter Results:
+To filter significant matches based on the E-value:
+
+awk '$11 < 1e-5' results.out > filtered_results.out
+
+
+
+Open in Excel: Convert results.out to .tsv format for opening in Excel.
+
+cp results.out results.tsv
+---------------------------------------------------------------------------------------------
+
+
+
+
+
