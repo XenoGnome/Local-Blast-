@@ -1,1 +1,1 @@
-Hi, Blast + to explore genome
+Hi, Blast + to explore local database
