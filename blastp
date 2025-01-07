@@ -1,76 +1,35 @@
-#Ensure BLAST+ is installed on your Linux system. You can install it using a package manager or download it directly from NCBI.
+`sudo apt update`
+`sudo apt install ncbi-blast+`
 
-#Using a Package Manager (e.g., Ubuntu/Debian)
+# Files needed
 
-sudo apt update
-sudo apt install ncbi-blast+
+.pep file & .cds / .fasta file from Genome
+.fasta file of query
 
-#Step 2: Prepare Your Files
- 	Protein sequence database file (e.g., proteins.fasta):
-	This file contains the protein sequences you want to search against.
- 	Query sequence file (e.g., query.fasta):
-	his file contains the protein sequences you want to search for.
-	Ensure both files are in FASTA format.
+# Step 1: Create a BLAST database
+`makeblastdb -in #proteins.pep# -dbtype prot -out my_protein_db`
 
-makeblastdb -in crocus_sativus.pep -dbtype prot -out proteins_db 
+# Step 2: Run BLASTp search
+`blastp -query #query.fasta# -db #my_protein_db# -out results.out -evalue 1e-5 -outfmt 7`
 
+# Step 3: View the results
+`cat results.out`
 
-Explanation:
--in: The input file (proteins.fasta).
--dbtype: Specify prot for protein sequences.
--out: Prefix for the BLAST database files (e.g., proteins_db).
+# Step 4: Sort Uniq IDS
 
-Or:
--in: Input protein file (proteins.pep).
--dbtype: Specify prot for protein sequences.
--out: Prefix for the BLAST database files (proteins_db).
-This will generate the database files (proteins_db.phr, proteins_db.pin, proteins_db.psq).
+`cut -f2 results.out | sort | uniq > subject_ids.txt`
 
-Step 3: Perform the BLAST Search
-Run blastp to search your query protein (query.fasta) against the protein database (proteins_db).
+To remove a range of lines (e.g., the first 3 lines):
 
-blastp -query query.fasta -db proteins_db -out results.out -outfmt 6 -evalue 1e-5 -num_threads 4
+`sed '1,3d' input.txt > output.txt`
 
-Explanation:
--query: Input query file (query.fasta).
--db: Protein BLAST database (proteins_db).
--out: Output file for the results (results.out).
--outfmt 6: Tabular format for easier processing.
--evalue: Set an E-value threshold (e.g., 1e-5).
--num_threads: Number of CPU threads to use for faster processing.
+# Step 5: Grab Sequence from .pep file Using Uniq ID
+
+`seqtk subseq #database.pep# subject_ids.txt > extracted_sequences.fasta`
+
+ `seqtk subseq ../saffron\ genome/Genome/crocus_sativus.gene.pep CsFT_ID.txt > extracted_csft_sequences.fasta`
 
 
-Step 4: Analyze the Results
-The -outfmt 6 output is tab-delimited with the following columns:
+# Step 6: To fetch the descriptions for a subset of IDs from a file containing IDs and their corresponding descriptions
 
-Query ID
-Subject ID
-% Identity
-Alignment length
-Mismatches
-Gap opens
-Query start
-Query end
-Subject start
-Subject end
-E-value
-Bit score
-
-less results.out
-
-Filter Results:
-To filter significant matches based on the E-value:
-
-awk '$11 < 1e-5' results.out > filtered_results.out
-
-
-
-Open in Excel: Convert results.out to .tsv format for opening in Excel.
-
-cp results.out results.tsv
----------------------------------------------------------------------------------------------
-
-
-
-
-
+`grep -Ff #subset_ids.txt# #id_description_file.txt# > matched_descriptions.txt`
